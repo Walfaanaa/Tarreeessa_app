@@ -87,7 +87,7 @@ st.markdown("""
 # -------------------------------
 # 2️⃣ Load Members Data
 # -------------------------------
-DATA_FILE = "members_data.xlsx"
+DATA_FILE = "Tarreessa.xlsx" 
 WINNER_FILE = "winners_record.xlsx"
 
 try:
@@ -105,7 +105,7 @@ try:
 
 except FileNotFoundError:
     st.error(
-        "❌ members_data.xlsx file not found! Please upload it to your app folder or GitHub repo."
+        "❌ Tarreessa.xlsx file not found! Please upload it to your app folder or GitHub repo."
     )
     st.stop()
 

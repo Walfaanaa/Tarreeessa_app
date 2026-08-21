@@ -20,7 +20,7 @@ st.set_page_config(
 
 
 # ============================================================
-# 🎨 CUSTOM UI STYLE
+# 2️⃣ CUSTOM UI STYLE
 # ============================================================
 
 st.markdown("""
@@ -80,21 +80,21 @@ h3 {
 
 
 # ============================================================
-# 🎨 HEADER
+# 3️⃣ HEADER
 # ============================================================
 
 st.markdown("""
 <div class="header-section">
 
-    <h1>🎟️ EGSA Lottery Winners App</h1>
+    <h1>🎟️ EGSA Uqqubii Lottery</h1>
 
     <h3>
         Welcome to the EGSA Uqqubii Lottery Winners App
     </h3>
 
     <p>
-        This system ensures fair, transparent, and one-time-only
-        draws managed by authorized personnel.
+        A fair, transparent, and secure lottery system
+        designed to ensure one-time-only winner selection.
     </p>
 
 </div>
@@ -102,7 +102,7 @@ st.markdown("""
 
 
 # ============================================================
-# 2️⃣ FILE CONFIGURATION
+# 4️⃣ FILE CONFIGURATION
 # ============================================================
 
 DATA_FILE = "Tarreessa.xlsx"
@@ -110,30 +110,22 @@ WINNER_FILE = "winners_record.xlsx"
 
 
 # ============================================================
-# 3️⃣ GITHUB CONFIGURATION
+# 5️⃣ GITHUB CONFIGURATION
 # ============================================================
 
 GITHUB_OWNER = "Walfaanaa"
-
 GITHUB_REPO = "Tarreeessa_app"
-
 GITHUB_BRANCH = "main"
 
 GITHUB_DATA_PATH = "Tarreessa.xlsx"
-
 GITHUB_WINNER_PATH = "winners_record.xlsx"
 
 
 # ============================================================
-# 4️⃣ LOAD ENVIRONMENT VARIABLES
+# 6️⃣ LOAD ENVIRONMENT VARIABLES
 # ============================================================
 
 load_dotenv()
-
-
-# ============================================================
-# 5️⃣ LOAD PASSWORDS
-# ============================================================
 
 AUTHORIZED_CODE = os.getenv(
     "STREAMLIT_ADMIN_PASSWORD"
@@ -143,47 +135,38 @@ RESET_PASSWORD = os.getenv(
     "STREAMLIT_RESET_PASSWORD"
 )
 
-
-# ============================================================
-# 6️⃣ LOAD GITHUB TOKEN
-# ============================================================
-
 GITHUB_TOKEN = os.getenv(
     "GITHUB_TOKEN"
 )
 
 
 # ============================================================
-# STREAMLIT CLOUD SECRETS FALLBACK
+# 7️⃣ STREAMLIT CLOUD SECRETS
 # ============================================================
 
 try:
 
     if not AUTHORIZED_CODE:
-
         AUTHORIZED_CODE = st.secrets.get(
             "STREAMLIT_ADMIN_PASSWORD"
         )
 
     if not RESET_PASSWORD:
-
         RESET_PASSWORD = st.secrets.get(
             "STREAMLIT_RESET_PASSWORD"
         )
 
     if not GITHUB_TOKEN:
-
         GITHUB_TOKEN = st.secrets.get(
             "GITHUB_TOKEN"
         )
 
 except Exception:
-
     pass
 
 
 # ============================================================
-# 7️⃣ GITHUB HEADERS
+# 8️⃣ GITHUB HEADERS
 # ============================================================
 
 def github_headers():
@@ -196,7 +179,7 @@ def github_headers():
 
 
 # ============================================================
-# 8️⃣ DOWNLOAD FILE FROM GITHUB
+# 9️⃣ DOWNLOAD FILE FROM GITHUB
 # ============================================================
 
 def download_file_from_github(file_path):
@@ -220,19 +203,17 @@ def download_file_from_github(file_path):
 
     response.raise_for_status()
 
-    response_data = response.json()
+    data = response.json()
 
-    encoded_content = response_data["content"]
+    encoded_content = data["content"]
 
-    file_bytes = base64.b64decode(
+    return base64.b64decode(
         encoded_content
     )
 
-    return file_bytes
-
 
 # ============================================================
-# 9️⃣ UPLOAD / UPDATE FILE ON GITHUB
+# 🔟 UPLOAD / UPDATE FILE ON GITHUB
 # ============================================================
 
 def upload_file_to_github(
@@ -250,7 +231,7 @@ def upload_file_to_github(
     )
 
     # --------------------------------------------------------
-    # Get existing file SHA
+    # Get current SHA
     # --------------------------------------------------------
 
     response = requests.get(
@@ -273,16 +254,12 @@ def upload_file_to_github(
         response.raise_for_status()
 
     # --------------------------------------------------------
-    # Encode file
+    # Encode Excel file
     # --------------------------------------------------------
 
     encoded_content = base64.b64encode(
         file_bytes
     ).decode("utf-8")
-
-    # --------------------------------------------------------
-    # GitHub payload
-    # --------------------------------------------------------
 
     payload = {
         "message": commit_message,
@@ -291,7 +268,6 @@ def upload_file_to_github(
     }
 
     if sha:
-
         payload["sha"] = sha
 
     # --------------------------------------------------------
@@ -311,7 +287,7 @@ def upload_file_to_github(
 
 
 # ============================================================
-# 🔟 CREATE EXCEL BYTES
+# 1️⃣1️⃣ DATAFRAME → EXCEL BYTES
 # ============================================================
 
 def dataframe_to_excel_bytes(df):
@@ -333,13 +309,13 @@ def dataframe_to_excel_bytes(df):
 
 
 # ============================================================
-# 1️⃣1️⃣ LOAD MEMBERS DATA
+# 1️⃣2️⃣ LOAD MEMBERS DATA
 # ============================================================
 
 try:
 
     # --------------------------------------------------------
-    # First try local file
+    # Load local Tarreessa.xlsx
     # --------------------------------------------------------
 
     if os.path.exists(DATA_FILE):
@@ -349,7 +325,8 @@ try:
         )
 
     # --------------------------------------------------------
-    # If local file doesn't exist, download from GitHub
+    # If local file does not exist,
+    # download it from GitHub
     # --------------------------------------------------------
 
     else:
@@ -357,7 +334,7 @@ try:
         if not GITHUB_TOKEN:
 
             st.error(
-                "❌ Tarreessa.xlsx not found locally "
+                "❌ Tarreessa.xlsx was not found locally "
                 "and GITHUB_TOKEN is not configured."
             )
 
@@ -371,14 +348,15 @@ try:
             BytesIO(github_data)
         )
 
-        # Save local copy
-
         with open(
             DATA_FILE,
             "wb"
         ) as f:
 
-            f.write(github_data)
+            f.write(
+                github_data
+            )
+
 
     # --------------------------------------------------------
     # Display members
@@ -404,6 +382,7 @@ try:
         use_container_width=True
     )
 
+
 except FileNotFoundError:
 
     st.error(
@@ -412,17 +391,18 @@ except FileNotFoundError:
 
     st.stop()
 
+
 except Exception as e:
 
     st.error(
-        f"❌ Error loading member data: {e}"
+        f"❌ Error loading Tarreessa.xlsx: {e}"
     )
 
     st.stop()
 
 
 # ============================================================
-# 1️⃣2️⃣ PASSWORD CONFIGURATION CHECK
+# 1️⃣3️⃣ CONFIGURATION WARNINGS
 # ============================================================
 
 if not AUTHORIZED_CODE:
@@ -461,13 +441,12 @@ if not GITHUB_TOKEN:
 
 
 # ============================================================
-# 1️⃣3️⃣ ADMIN AUTHORIZATION
+# 1️⃣4️⃣ ADMIN AUTHORIZATION
 # ============================================================
 
 st.markdown(
     "### 🔐 Administrator Access"
 )
-
 
 password = st.text_input(
     "Enter admin passcode to enable draw:",
@@ -477,7 +456,7 @@ password = st.text_input(
 
 
 # ============================================================
-# 1️⃣4️⃣ AUTHORIZED USER
+# 1️⃣5️⃣ AUTHORIZED USER
 # ============================================================
 
 if (
@@ -494,7 +473,7 @@ if (
 
 
     # ========================================================
-    # 1️⃣5️⃣ CHECK PREVIOUS WINNERS
+    # 1️⃣6️⃣ CHECK PREVIOUS WINNERS
     # ========================================================
 
     if os.path.exists(WINNER_FILE):
@@ -576,7 +555,6 @@ if (
                     and reset_pass_input == RESET_PASSWORD
                 ):
 
-
                     try:
 
                         # =========================================
@@ -593,7 +571,7 @@ if (
 
 
                         # =========================================
-                        # MAKE COPY
+                        # COPY MEMBER DATA
                         # =========================================
 
                         updated_members = members_df.copy()
@@ -668,7 +646,7 @@ if (
 
 
                         # =========================================
-                        # CREATE UPDATED TARREESSA.XLSX
+                        # CREATE UPDATED EXCEL
                         # =========================================
 
                         updated_data = (
@@ -717,7 +695,7 @@ if (
 
 
                         # =========================================
-                        # SUCCESS
+                        # SUCCESS MESSAGE
                         # =========================================
 
                         st.success(
@@ -740,8 +718,8 @@ if (
                         )
 
                         st.success(
-                            "🔄 The system is ready for "
-                            "the next lottery round."
+                            "🔄 System is ready for the "
+                            "next lottery round."
                         )
 
 
@@ -765,7 +743,7 @@ if (
 
 
     # ========================================================
-    # 1️⃣6️⃣ NEW DRAW
+    # 1️⃣7️⃣ NEW DRAW
     # ========================================================
 
     else:
@@ -815,7 +793,6 @@ if (
             key="pick_winners",
             type="primary"
         ):
-
 
             placeholder = st.empty()
 
@@ -880,7 +857,6 @@ if (
                     "🎉🎉 WINNERS SELECTED SUCCESSFULLY! 🎉🎉"
                 )
 
-
                 st.balloons()
 
 
@@ -896,10 +872,14 @@ if (
 
 
                 # =============================================
-                # SAVE WINNERS LOCALLY
+                # SAVE WINNERS
                 # =============================================
 
                 try:
+
+                    # -----------------------------------------
+                    # Save locally
+                    # -----------------------------------------
 
                     winners.to_excel(
                         WINNER_FILE,
@@ -908,9 +888,9 @@ if (
                     )
 
 
-                    # =========================================
-                    # CREATE WINNER EXCEL BYTES
-                    # =========================================
+                    # -----------------------------------------
+                    # Convert winners to Excel bytes
+                    # -----------------------------------------
 
                     winner_output = BytesIO()
 
@@ -932,9 +912,9 @@ if (
                     )
 
 
-                    # =========================================
-                    # UPLOAD WINNERS TO GITHUB
-                    # =========================================
+                    # -----------------------------------------
+                    # Upload to GitHub
+                    # -----------------------------------------
 
                     if GITHUB_TOKEN:
 
@@ -1023,7 +1003,7 @@ if (
 
 
 # ============================================================
-# 1️⃣7️⃣ INVALID PASSWORD
+# 1️⃣8️⃣ INVALID PASSWORD
 # ============================================================
 
 elif password:
@@ -1039,7 +1019,7 @@ elif password:
 
 
 # ============================================================
-# 1️⃣8️⃣ NO PASSWORD
+# 1️⃣9️⃣ NO PASSWORD
 # ============================================================
 
 else:

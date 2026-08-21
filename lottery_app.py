@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 # ============================================================
 
 st.set_page_config(
-    page_title="🎟️ EGSA Lottery Winners",
+    page_title="🎟️ EGSA Uqqubii Lottery",
     layout="wide",
     page_icon="🎟️"
 )
@@ -57,6 +57,24 @@ body {
     text-align: center;
     color: white;
     font-family: Arial, sans-serif;
+}
+
+.header-section h1 {
+    text-align: center;
+    color: white;
+    font-size: 38px;
+}
+
+.header-section h3 {
+    text-align: center;
+    color: white;
+    font-size: 22px;
+}
+
+.header-section p {
+    text-align: center;
+    color: white;
+    font-size: 17px;
 }
 
 h1,
@@ -162,6 +180,7 @@ try:
         )
 
 except Exception:
+
     pass
 
 
@@ -231,7 +250,7 @@ def upload_file_to_github(
     )
 
     # --------------------------------------------------------
-    # Get current SHA
+    # Get existing file SHA
     # --------------------------------------------------------
 
     response = requests.get(
@@ -268,6 +287,7 @@ def upload_file_to_github(
     }
 
     if sha:
+
         payload["sha"] = sha
 
     # --------------------------------------------------------
@@ -287,10 +307,13 @@ def upload_file_to_github(
 
 
 # ============================================================
-# 1️⃣1️⃣ DATAFRAME → EXCEL BYTES
+# 1️⃣1️⃣ DATAFRAME TO EXCEL BYTES
 # ============================================================
 
-def dataframe_to_excel_bytes(df):
+def dataframe_to_excel_bytes(
+    df,
+    sheet_name="Members"
+):
 
     output = BytesIO()
 
@@ -302,7 +325,7 @@ def dataframe_to_excel_bytes(df):
         df.to_excel(
             writer,
             index=False,
-            sheet_name="Members"
+            sheet_name=sheet_name
         )
 
     return output.getvalue()
@@ -315,7 +338,7 @@ def dataframe_to_excel_bytes(df):
 try:
 
     # --------------------------------------------------------
-    # Load local Tarreessa.xlsx
+    # Try local file first
     # --------------------------------------------------------
 
     if os.path.exists(DATA_FILE):
@@ -325,8 +348,7 @@ try:
         )
 
     # --------------------------------------------------------
-    # If local file does not exist,
-    # download it from GitHub
+    # Otherwise download from GitHub
     # --------------------------------------------------------
 
     else:
@@ -359,12 +381,17 @@ try:
 
 
     # --------------------------------------------------------
-    # Display members
+    # Display member count
     # --------------------------------------------------------
 
     st.success(
         f"✅ {len(members_df)} members loaded successfully."
     )
+
+
+    # --------------------------------------------------------
+    # Display members
+    # --------------------------------------------------------
 
     display_members = members_df.copy()
 
@@ -448,6 +475,7 @@ st.markdown(
     "### 🔐 Administrator Access"
 )
 
+
 password = st.text_input(
     "Enter admin passcode to enable draw:",
     type="password",
@@ -473,7 +501,7 @@ if (
 
 
     # ========================================================
-    # 1️⃣6️⃣ CHECK PREVIOUS WINNERS
+    # 1️⃣6️⃣ PREVIOUS WINNERS
     # ========================================================
 
     if os.path.exists(WINNER_FILE):
@@ -493,21 +521,28 @@ if (
                 WINNER_FILE
             )
 
-            display_previous = previous_winners.copy()
+
+            display_previous = (
+                previous_winners.copy()
+            )
+
 
             display_previous.index = range(
                 1,
                 len(display_previous) + 1
             )
 
+
             st.subheader(
                 "🎉 Previous Winners"
             )
+
 
             st.dataframe(
                 display_previous,
                 use_container_width=True
             )
+
 
         except Exception as e:
 
@@ -574,7 +609,9 @@ if (
                         # COPY MEMBER DATA
                         # =========================================
 
-                        updated_members = members_df.copy()
+                        updated_members = (
+                            members_df.copy()
+                        )
 
 
                         # =========================================
@@ -610,6 +647,7 @@ if (
 
                         updated_members = (
                             updated_members.merge(
+
                                 previous_winners[
                                     common_columns
                                 ].drop_duplicates(),
@@ -651,7 +689,8 @@ if (
 
                         updated_data = (
                             dataframe_to_excel_bytes(
-                                updated_members
+                                updated_members,
+                                sheet_name="Members"
                             )
                         )
 
@@ -695,27 +734,31 @@ if (
 
 
                         # =========================================
-                        # SUCCESS MESSAGE
+                        # SUCCESS MESSAGES
                         # =========================================
 
                         st.success(
                             "✅ Reset completed successfully!"
                         )
 
+
                         st.info(
                             f"🏆 Previous winners removed: "
                             f"{removed_count}"
                         )
+
 
                         st.info(
                             f"👥 Remaining members: "
                             f"{after_count}"
                         )
 
+
                         st.success(
                             "☁️ Tarreessa.xlsx has been "
                             "updated on GitHub."
                         )
+
 
                         st.success(
                             "🔄 System is ready for the "
@@ -830,14 +873,14 @@ if (
                 # RANDOM WINNER SELECTION
                 # =============================================
 
-                winners = members_df.sample(
-
-                    n=int(num_winners),
-
-                    replace=False
-
-                ).reset_index(
-                    drop=True
+                winners = (
+                    members_df.sample(
+                        n=int(num_winners),
+                        replace=False
+                    )
+                    .reset_index(
+                        drop=True
+                    )
                 )
 
 
@@ -845,7 +888,10 @@ if (
                 # DISPLAY WINNERS
                 # =============================================
 
-                display_winners = winners.copy()
+                display_winners = (
+                    winners.copy()
+                )
+
 
                 display_winners.index = range(
                     1,
@@ -856,6 +902,7 @@ if (
                 st.success(
                     "🎉🎉 WINNERS SELECTED SUCCESSFULLY! 🎉🎉"
                 )
+
 
                 st.balloons()
 
@@ -889,7 +936,7 @@ if (
 
 
                     # -----------------------------------------
-                    # Convert winners to Excel bytes
+                    # Convert winners to Excel
                     # -----------------------------------------
 
                     winner_output = BytesIO()
@@ -913,7 +960,7 @@ if (
 
 
                     # -----------------------------------------
-                    # Upload to GitHub
+                    # Save winners to GitHub
                     # -----------------------------------------
 
                     if GITHUB_TOKEN:
@@ -942,8 +989,7 @@ if (
 
 
                     st.success(
-                        f"💾 Winners saved to "
-                        f"`{WINNER_FILE}`."
+                        "💾 Winners record saved successfully."
                     )
 
 
